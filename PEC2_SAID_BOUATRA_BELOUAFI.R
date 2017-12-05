@@ -1,6 +1,5 @@
 getwd()
 setwd("/Users/saidbouatra/Statistical_software/statist_R_dev_git/StatS_P2")
-
 #   Ejercicio 1: Una técnica operatoria tiene un 4% de complicaciones. 
 # ¿Cuál es la probabilidad de que si se realiza la técnica 96 veces haya 2 complicaciones? 
 
@@ -20,12 +19,14 @@ pnorm(15,9,3) - pnorm(8,9,3)
 
 qt(0.05 , 16 , lower.tail = FALSE) 
 
+
 ## Sección 2. Teorema Central del Límite.  
 # Ejercicio 4  (Demostración):  A. Genera 100,000 valores aleatorios de acuerdo a una distribución uniforme con mínimo 1 y máximo 5.
 set.seed(1234567)
 a <- runif(100000 , min = 1 , max = 5)
 c <- matrix(a,ncol = 20)
 par(mfrow = c(3,3))
+par(mar = c(1,1,1,1))
 hist(c[,1],col = "orange")
 hist(c[,2],col = "red")
 hist(c[,3],col = "blue")
@@ -41,9 +42,8 @@ par(mfrow = c(1,1))
 hist(v,breaks = "Sturges")
 hist(dnorm(a), mean(a),sd(a),add = TRUE ,col = "red")
 # diagrama cuantil-cuantil (qq.plot) con referencia a la distribución normal.
-
-qqplot(v, labels = FALSE)
-
+qqplot(v,a)
+qqnorm(v) 
 
 # Sección 3. Funciones y estructuras de control. 
 # Ejercicio 6 
@@ -69,13 +69,137 @@ check_natural(5.5)
 my_fibo <- function(n) {
   fibonacci <- numeric(n)
   fibonacci[1] <- fibonacci[2] <- 1
-  for( i in 3:n ) {
+  for(i in 3:n ) {
     fibonacci[i] <- fibonacci[i - 2] + fibonacci[i - 1]
    print(fibonacci[i])
 }}
 my_fibo(12) # solo para verificar la funcion.
 
 # Ejercicio 8: Centrémonos en la familia “Apply”. Explica para qué usamos estas funciones y genera un ejemplo práctico para cada una de ellas.  
+
+# la familia de funciones "apply" son una familia de funciones vectorizadas , que se pueden aplicar a arrays , matrices o vector.
+# la familia apply esta compuesta por la funciones : "apply" , "lapply" , "sapply" , "tapply", "mapply","vapply" . pero las tres primeras son las mas importantes .
+
+# empezamos con la funcion "apply" , esta funcion se define por tres argumentos : 
+# apply(x , margin , fun)
+# x: es el objeto al que le aplicaremos la funcion , puede ser un array , matriz o vector .
+# margin : nos dice a que array aplicaremos la funcion si margin = 1 significa que lo aplicaremos a las filas , y si es 2 a las columnas.
+# fun : es la funcion que queremos aplicar con apply a los datos , i.e : sum , mean ,... o puede ser que la definamos nosotros.
+# ejemplo :
+# creamos una matriz de 3x2 
+mi_matriz <- matrix(1:6,nrow = 3 , ncol = 2)
+mi_matriz
+# ahora queremos sumar los valores que hay en cada columna .
+apply(mi_matriz,2,sum)
+# se puede usar con otro tipo de datos , pero primero tienen que ser "coerced" con as.matrix o as.array funciones.
+
+# lapply : se diferencia de apply es que opera sobre listas , devuelve listas del mismo tamaño . tambien se puede usar con otro tipo de datos que no sean listas , pero habra que coaccianrlos a listas con la fx as.list.
+# creamos 3 listas (A,B,C)
+A <- matrix(1:6 , nrow = 3, ncol = 3)
+B <- matrix(6:12 , nrow = 3, ncol = 3)
+C <- matrix(12:18 , nrow = 3 , ncol = 3)
+mi_lista <- list(A,B,C)
+mi_lista
+# aplicamos lapply para extraer ,por ejemplo , datos en la primera fila y primera columna.
+
+lapply(mi_lista,"[",1,1)
+
+# una vez ejecutada , tenemos el resultado en forma de lista . con la anotacion 
+# [[ ]] con un numero dentro que indica su posicion en la lista .
+# "[" esta anotacion hace la funcion de operador para selecionar solamente lo que le pedimos.
+
+# sapply : hace lo mismo que lapply , solo que en vez de devolver una lista , devuelve el resultado en forma de vector.
+# el mismo codigo anterior (lapply), lo utilizaremos para ver un ejemplo con sapply.
+
+mi_lista
+sapply(mi_lista,"[",1,1)
+
+# tapply : tapply(x, INDEX, fun ) , esta funcion lo que hace es aplicar la funcion, argumento 3, (fun = mean, sd, sum ...) al vector "x",(argumento 1) , agrupados por los factores "INDEX" (argumento 2).
+# ejemplo :
+x <- seq(1, 20 ,by = 1) 
+y <- sample(c("black","white") , 20 , replace = TRUE)
+tapply(x,y,sum)
+
+# mapply : mapply(FUN, ...,) realiza operaciones entre los matrices y devuelve una lista o un vector.
+# aplica la funcion fun ( primer argumento) , por ejemplo:
+
+mapply(sum, 1:3 , 2:4) # lo que hace mapply es sumar el primer elemnto de la matriz 1:3 (que es 1) con el primero de otra matriz 
+
+# vapply : es parecida a lo que hace sapply , solo que Devuelve un vector con la longitud que tiene cada una de las listas introducidas como parámetro
+# ejemplo 
+
+x <- list(A = 1, B = 1:4, C = 1:9)
+vapply(x ,FUN = sum , FUN.VALUE = 0)
+
+
+# Sección 4. Gráficos. 
+
+# Ejercicio 10
+# A : Diagramas de Venn.
+# Un diagrama de Venn usa círculos que se superponen u otras figuras para ilustrar las relaciones lógicas entre dos o más conjuntos de elementos.
+# A menudo, se utilizan para organizar cosas de forma gráfica, destacando en qué se parecen y difieren los elementos. Los diagramas de Venn, también denominados "diagramas de conjunto" o "diagramas lógicos", se usan ampliamente en las áreas de matemática, estadística,..etc.
+
+# B : 
+library(gplots) 
+oneName <- function() paste(sample(LETTERS,5,replace = TRUE),collapse = "")  
+geneNames <- replicate(1000, oneName())  
+GroupA <- sample(geneNames, 400, replace = FALSE)  
+GroupB <- sample(geneNames, 750, replace = FALSE)  
+GroupC <- sample(geneNames, 250, replace = FALSE)  
+GroupD <- sample(geneNames, 300, replace = FALSE)  
+input <- list(GroupA,GroupB,GroupC,GroupD)  
+input  
+venn(input) 
+# primero instalamos paquete "gplots" para poder visualizar los diagramas de Venn.
+# creamos una fx "oneName" que crea un muestreo de 5 letras juntas entre "" .
+# creamos un vector "geneNames" de 1000 combinaciones de oneName.
+# creamos 4 grupos a partir de geneNames de diferente tamaños de forma aleatoria.
+#  creamos una lista con los 4 grupos , que seria el conjunto de datos.
+# representamos el conjunto "input" a traves de diagramas de Venn , ejecutando la fx "venn".
+# lo que vemos en la representacion de los diagramas de venn , es las intersecciones entre grupos y el numero de genNames que tienen en comun los grupos.
+# si como ejemplo cojemos el Groupo A , vemos que tiene :
+# 57 elementos no compartidos con ningun otro grupo
+# y que comparte con el GroupB : 152 + 56 + 25 + 75 = 308 elementos.
+
+
+# C. A partir de los datos siguientes:  
+x <- c(1,3,5,7,9)  
+y <- c(2, 4, 6, 8)  
+z <- matrix(runif(20, 1, 10), 5, 4) 
+order(x) # ordenamos los dos vectores x , y para poder repesentar graficamente un contour()
+order(y)
+# library(ggplots2) # me da error por este paquete no es disponible para la version 3.4.2 .
+contour(x,y,z) # se representa sin poder hacer mucha modificaciones en los argumentos .
+filled.contour(x,y,z) 
+
+# la funcion "contour" representa graficamente las isolineas de la matriz "z" respecto a lo vectores "x" , "y" que definen el plano x-y.
+# las isolineas representan valores constantes de z respecto a x,y.
+
+
+
+# Sección 5
+
+# heatmap es herramienta pra analizar y representar graficamente los datos de una matriz dando a cada valor un color . se puede representar en 2D y 3D , 
+# los heatmaps tienen muchas aplicaciones , desde mapas del tiempo , visitas a paginas web , marketing online....
+# son muy usados en ciencias naturales , especialmente en biologia molecular .
+# en biologia molecular se usa para visualizar genes y interpretar sus expresiones.
+# tambien para identificar los genes que comunmente regulados , o relacionados con alguna patologia.
+
+# B. Ejecuta el siguiente código para jugar con una aplicación.  
+
+ # he instalado este paquete , porque me daba error instalar ggplot2 .
+ library(shiny) # los siguientes pasos me daba error ,  
+# " Error in library(heatmaply) : there is no package called ‘heatmaply’"
+# library(heatmaply)  
+# library(shinyHeatmaply)  
+# runApp(system.file("shinyapp", package = "shinyHeatmaply"))   
+
+
+
+
+
+
+
 
 
 
